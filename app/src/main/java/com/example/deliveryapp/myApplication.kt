@@ -2,6 +2,10 @@ package com.example.deliveryapp
 
 import android.app.Application
 import android.content.Context
+import com.example.deliveryapp.di.appModule
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 
 class myApplication: Application() {
 
@@ -9,6 +13,9 @@ class myApplication: Application() {
         super.onCreate()
         appContext = this
 
+        startKoin {
+            modules(appModule)
+        }
     }
 
     override fun onTerminate() {
