@@ -1,15 +1,16 @@
+@file:Suppress("IMPLICIT_CAST_TO_ANY")
 
 package com.example.deliveryapp.util.mapper
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.ViewParent
 import com.example.deliveryapp.databinding.ViewholderEmptyBinding
+import com.example.deliveryapp.databinding.ViewholderRestaurantBinding
 import com.example.deliveryapp.model.CellType
 import com.example.deliveryapp.model.Model
 import com.example.deliveryapp.screen.base.BaseViewModel
 import com.example.deliveryapp.util.provider.ResourcesProvider
-import com.example.deliveryapp.widget.adapter.viewholder.EmptyViewHolder
+import com.example.deliveryapp.widget.adapter.viewholder.restaurant.RestaurantViewHolder
 import com.example.deliveryapp.widget.adapter.viewholder.ModelViewHolder
 
 object ModelViewHolderMapper {
@@ -23,8 +24,14 @@ object ModelViewHolderMapper {
     ) : ModelViewHolder<M> {
         val inflater = LayoutInflater.from(parent.context)
         val viewHolder = when (type) {
-            CellType.EMPTY_CELL -> EmptyViewHolder(
-                ViewholderEmptyBinding.inflate(inflater, parent, false),
+//            CellType.EMPTY_CELL -> EmpTYv(
+//                ViewholderEmptyBinding.inflate(inflater, parent, false),
+//                viewModel,
+//                resourcesProvider
+//            )
+
+            CellType.RESTAURANT_CELL -> RestaurantViewHolder(
+                ViewholderRestaurantBinding.inflate(inflater, parent, false),
                 viewModel,
                 resourcesProvider
             )

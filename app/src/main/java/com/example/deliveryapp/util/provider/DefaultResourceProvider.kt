@@ -10,7 +10,7 @@ class DefaultResourceProvider(
 ) : ResourcesProvider{
     override fun getString(@StringRes resId: Int): String = context.getString(resId)
 
-    override fun getString(@StringRes resId: Int, vararg formatArgs: Any): String = context.getString(resId, formatArgs)
+    override fun getString(@StringRes resId: Int, vararg formatArgs: Any): String = context.getString(resId, *formatArgs)
 
     override fun getColor(@ColorRes resId: Int): Int = ContextCompat.getColor(context, resId)
 
