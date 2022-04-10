@@ -2,17 +2,37 @@ package com.example.deliveryapp.screen
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.deliveryapp.R
 import com.example.deliveryapp.databinding.ActivityMainBinding
+import com.example.deliveryapp.screen.base.BaseActivity
 import com.example.deliveryapp.screen.home.HomeFragment
 import com.example.deliveryapp.screen.my.MyFragment
+import com.example.deliveryapp.util.event.MenuChangeEventBus
 import com.google.android.material.navigation.NavigationBarView
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListener {
+class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(), NavigationBarView.OnItemSelectedListener {
 
-    private lateinit var binding: ActivityMainBinding
+    override val viewModel by viewModel<MainViewModel>()
+
+    override fun getViewBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+
+    private val menuChangeEventBus by inject<MenuChangeEventBus>()
+
+
+    override fun initState() {
+        super.initState()
+        lifecycleScope.launch {
+            menuChangeEventBus.changeMenu(MainTabMenu.HOME)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +44,7 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
 
     }
 
-    private fun initViews() = with(binding) {
+    override fun initViews() = with(binding) {
         bottomNav.setOnItemSelectedListener(this@MainActivity)
     }
 
@@ -55,4 +75,20 @@ class MainActivity : AppCompatActivity(), NavigationBarView.OnItemSelectedListen
                 .commitAllowingStateLoss()
         }
     }
+
+    fun goToTab(mainTabMenu: MainTabMenu) {
+        binding.bottomNav.selectedItemId = mainTabMenu.menuId
+    }
+
+    override fun observeData() {
+        lifecycleScope.launch {
+            menuChangeEventBus.mainTabMenuFlow.collect {
+                goToTab(it)
+            }
+        }
+    }
+}
+
+enum class MainTabMenu(@IdRes val menuId: Int) {
+    HOME(R.id.menu_home), MY(R.id.menu_my)
 }

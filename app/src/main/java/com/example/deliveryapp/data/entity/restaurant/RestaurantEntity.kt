@@ -1,6 +1,7 @@
 package com.example.deliveryapp.data.entity.restaurant
 
 import android.os.Parcelable
+import com.example.deliveryapp.data.entity.Entity
 import com.example.deliveryapp.screen.home.restaurant.RestaurantCategory
 import kotlinx.parcelize.Parcelize
 

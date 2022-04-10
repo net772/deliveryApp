@@ -23,7 +23,6 @@ class RestaurantListFragment: BaseFragment<RestaurantListViewModel, FragmentList
             override fun onClickItem(model: RestaurantModel) {
                 Toast.makeText(requireContext(), "$model", Toast.LENGTH_SHORT).show()
             }
-
         })
     }
 
@@ -32,6 +31,8 @@ class RestaurantListFragment: BaseFragment<RestaurantListViewModel, FragmentList
     }
 
     override fun observeData() = viewModel.restaurantListLiveData.observe(viewLifecycleOwner) {
+        Log.d("동현","it : $it")
+
         adapter.submitList(it)
     }
 
@@ -39,7 +40,7 @@ class RestaurantListFragment: BaseFragment<RestaurantListViewModel, FragmentList
         const val RESTAURANT_CATEGORY_KEY = "restaurantCategory"
 
         fun newInstance(restaurnatCategory: RestaurantCategory): RestaurantListFragment {
-            Log.d("동현","return : ${ RESTAURANT_CATEGORY_KEY to restaurnatCategory}")
+            Log.d("동현","newInstance")
             return RestaurantListFragment().apply {
                 arguments = bundleOf(
                     RESTAURANT_CATEGORY_KEY to restaurnatCategory // ex) -> (restaurantCategory, ALL)

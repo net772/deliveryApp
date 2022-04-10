@@ -1,4 +1,5 @@
 package com.example.deliveryapp.screen
 
-class MainViewModel {
-}
+import com.example.deliveryapp.screen.base.BaseViewModel
+
+class MainViewModel: BaseViewModel()
