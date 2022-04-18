@@ -2,6 +2,7 @@ package com.example.deliveryapp.screen.home
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.location.LocationListener
@@ -13,10 +14,14 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.example.deliveryapp.R
 import com.example.deliveryapp.data.entity.location.LocationLatLngEntity
+import com.example.deliveryapp.data.entity.location.MapSearchInfoEntity
 import com.example.deliveryapp.databinding.FragmentHomeBinding
 import com.example.deliveryapp.screen.base.BaseFragment
+import com.example.deliveryapp.screen.home.HomeViewModel.Companion.MY_LOCATION_KEY
 import com.example.deliveryapp.screen.home.restaurant.RestaurantCategory
 import com.example.deliveryapp.screen.home.restaurant.RestaurantListFragment
+import com.example.deliveryapp.screen.home.restaurant.RestautantFilterOrder
+import com.example.deliveryapp.screen.mylocation.MyLocationActivity
 import com.example.deliveryapp.widget.adapter.RestaurantListFragmentPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -40,6 +45,14 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
     private lateinit var myLocationListener: MyLocationListener
 
+    private val changeLocationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.getParcelableExtra<MapSearchInfoEntity>(MY_LOCATION_KEY)?.let { myLocationInfo ->
+                viewModel.loadReverseGeoInformation(myLocationInfo.locationLatLng)
+            }
+        }
+    }
+
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val responsePermissions = permissions.entries.filter {
@@ -59,6 +72,48 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         }
     override fun getViewBinding(): FragmentHomeBinding = FragmentHomeBinding.inflate(layoutInflater)
 
+    override fun initViews() = with(binding) {
+        locationTitleTextView.setOnClickListener {
+            viewModel.getMapSearchInfo()?.let { mapInfo ->
+                changeLocationLauncher.launch(
+                    MyLocationActivity.newIntent(
+                        requireContext(), mapInfo
+                    )
+                )
+            }
+        }
+
+        orderChipGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.chipDefault -> {
+                    chipInitialize.isGone = true
+                    changeRestaurantFilterOrder(RestautantFilterOrder.DEFAULT)
+                }
+                R.id.chipInitialize -> {
+                    chipDefault.isChecked = true
+                }
+                R.id.chipDeliveryTip -> {
+                    chipInitialize.isVisible = true
+                    changeRestaurantFilterOrder(RestautantFilterOrder.LOW_DELIVERY_TIP)
+                }
+                R.id.chipFastDelivery -> {
+                    chipInitialize.isVisible = true
+                    changeRestaurantFilterOrder(RestautantFilterOrder.FAST_DELIVERY)
+                }
+                R.id.chipTopRate -> {
+                    chipInitialize.isVisible = true
+                    changeRestaurantFilterOrder(RestautantFilterOrder.TOP_RATE)
+                }
+            }
+        }
+    }
+
+    private fun changeRestaurantFilterOrder(order: RestautantFilterOrder) {
+        viewPagerAdapter.fragmentList.forEach {
+            it.viewModel.setRestaurantFilterOrder(order)
+        }
+    }
+
     override fun observeData() = viewModel.homeStateLiveData.observe(viewLifecycleOwner) {
         when(it) {
             is HomeState.Uninitialized -> {
@@ -75,6 +130,9 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
                 binding.viewPager.isVisible = true
                 binding.locationTitleTextView.text = it.mapSearchInfoEntity.fullAddress
                 initViewPager(it.mapSearchInfoEntity.locationLatLng)
+                if (it.isLocationSame.not()) {
+                    Toast.makeText(requireContext(), R.string.please_set_your_current_location, Toast.LENGTH_SHORT).show()
+                }
             }
             is HomeState.Error -> {
                 binding.locationLoading.isGone = true
@@ -83,8 +141,6 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
                     getMyLocation()
                 }
                 Toast.makeText(requireContext(), it.messageId, Toast.LENGTH_SHORT).show()
-
-
             }
             else -> Unit
         }
@@ -95,19 +151,28 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
 
         if(::viewPagerAdapter.isInitialized.not()) {
             val restaurantListFragmentList = restaurantCategories.map {
-                RestaurantListFragment.newInstance(it)
+                RestaurantListFragment.newInstance(it, locationLatLng)
             }
 
             viewPagerAdapter = RestaurantListFragmentPagerAdapter(
                 this@HomeFragment,
                 restaurantListFragmentList,
+                locationLatLng
             )
             viewPager.adapter = viewPagerAdapter
+            viewPager.offscreenPageLimit = restaurantCategories.size  // 한번 만들어진 프래그먼트를 계속 쓸 수 있도록 처리
+            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                tab.setText(restaurantCategories[position].categoryNameId)
+            }.attach()
         }
-        viewPager.offscreenPageLimit = restaurantCategories.size  // 한번 만들어진 프래그먼트를 계속 쓸 수 있도록 처리
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.setText(restaurantCategories[position].categoryNameId)
-        }.attach()
+
+        if (locationLatLng != viewPagerAdapter.locationLatLng) {
+            viewPagerAdapter.locationLatLng = locationLatLng
+            viewPagerAdapter.fragmentList.forEach {
+                it.viewModel.setLocationLatLng(locationLatLng)
+            }
+        }
+
     }
 
     private fun getMyLocation() {

@@ -3,6 +3,7 @@ package com.example.deliveryapp.screen.home.restaurant
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.deliveryapp.data.entity.location.LocationLatLngEntity
 import com.example.deliveryapp.data.repository.restaurant.RestaurantRepository
 import com.example.deliveryapp.model.restaurant.RestaurantModel
 import com.example.deliveryapp.screen.base.BaseViewModel
@@ -11,7 +12,9 @@ import kotlinx.coroutines.launch
 
 class RestaurantListViewModel(
     private val restaurantCategory: RestaurantCategory,
-    private val restaurantRepository: RestaurantRepository
+    private var locationLatLngEntity: LocationLatLngEntity,
+    private val restaurantRepository: RestaurantRepository,
+    private var restaurantFilterOrder: RestautantFilterOrder = RestautantFilterOrder.DEFAULT
 ): BaseViewModel() {
 
     private var _restaurantListLiveData = MutableLiveData<List<RestaurantModel>>()
@@ -19,8 +22,23 @@ class RestaurantListViewModel(
         get() = _restaurantListLiveData
 
     override fun fetchData(): Job = viewModelScope.launch{
-        val restaurantList = restaurantRepository.getList(restaurantCategory)
-        _restaurantListLiveData.value = restaurantList.map {
+        val restaurantList = restaurantRepository.getList(restaurantCategory, locationLatLngEntity)
+        val sortedList = when (restaurantFilterOrder) {
+            RestautantFilterOrder.DEFAULT -> {
+                restaurantList
+            }
+            RestautantFilterOrder.LOW_DELIVERY_TIP -> {
+                restaurantList.sortedBy { it.deliveryTipRange.first }
+            }
+            RestautantFilterOrder.FAST_DELIVERY -> {
+                restaurantList.sortedBy { it.deliveryTimeRange.first }
+            }
+            RestautantFilterOrder.TOP_RATE -> {
+                restaurantList.sortedByDescending { it.grade }
+            }
+        }
+
+        _restaurantListLiveData.value = sortedList.map {
             RestaurantModel(
                 id = it.id,
                 restaurantInfoId = it.restaurantInfoId,
@@ -33,5 +51,15 @@ class RestaurantListViewModel(
                 deliveryTipRange = it.deliveryTipRange
             )
         }
+    }
+
+    fun setLocationLatLng(locationLatLngEntity: LocationLatLngEntity) {
+        this.locationLatLngEntity = locationLatLngEntity
+        fetchData()
+    }
+
+    fun setRestaurantFilterOrder(order: RestautantFilterOrder) {
+        this.restaurantFilterOrder = order
+        fetchData()
     }
 }

@@ -10,8 +10,8 @@ sealed class HomeState {
     object Loading: HomeState()
 
     data class Success(
-        val mapSearchInfoEntity: MapSearchInfoEntity
-     //   val isLocationSame: Boolean,
+        val mapSearchInfoEntity: MapSearchInfoEntity,
+        val isLocationSame: Boolean,
       //  val foodMenuListInBasket: List<RestaurantFoodEntity>? = null
     ): HomeState()
 
