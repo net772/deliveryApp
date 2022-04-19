@@ -1,6 +1,7 @@
 package com.example.deliveryapp.data.repository.user
 
 import com.example.deliveryapp.data.entity.location.LocationLatLngEntity
+import com.example.deliveryapp.data.entity.restaurant.RestaurantEntity
 
 interface UserRepository {
 
@@ -8,5 +9,9 @@ interface UserRepository {
 
     suspend fun insertUserLocation(locationLatLngEntity: LocationLatLngEntity)
 
+    suspend fun getUserLikedRestaurant(restaurantTitle: String): RestaurantEntity?
 
+    suspend fun deleteUserLikedRestaurant(restaurantTitle: String)
+
+    suspend fun insertUserLikedRestaurant(restaurantEntity: RestaurantEntity)
 }

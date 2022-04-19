@@ -7,6 +7,7 @@ import com.example.deliveryapp.data.entity.location.LocationLatLngEntity
 import com.example.deliveryapp.databinding.FragmentListBinding
 import com.example.deliveryapp.model.restaurant.RestaurantModel
 import com.example.deliveryapp.screen.base.BaseFragment
+import com.example.deliveryapp.screen.home.restaurant.detail.RestaurantDetailActivity
 import com.example.deliveryapp.widget.adapter.ModelRecyclerAdapter
 import com.example.deliveryapp.widget.adapter.listener.restaurant.RestaurantListListener
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -23,7 +24,9 @@ class RestaurantListFragment: BaseFragment<RestaurantListViewModel, FragmentList
     private val adapter by lazy {
         ModelRecyclerAdapter<RestaurantModel, RestaurantListViewModel>(listOf(), viewModel, adapterListener = object : RestaurantListListener {
             override fun onClickItem(model: RestaurantModel) {
-                Toast.makeText(requireContext(), "$model", Toast.LENGTH_SHORT).show()
+                startActivity(
+                    RestaurantDetailActivity.newIntent(requireContext(), model.toEntity())
+                )
             }
         })
     }
@@ -37,6 +40,7 @@ class RestaurantListFragment: BaseFragment<RestaurantListViewModel, FragmentList
     }
 
     companion object {
+        const val RESTAURANT_KEY = "Restaurant"
         const val RESTAURANT_CATEGORY_KEY = "restaurantCategory"
         const val LOCATION_KEY = "location"
 
