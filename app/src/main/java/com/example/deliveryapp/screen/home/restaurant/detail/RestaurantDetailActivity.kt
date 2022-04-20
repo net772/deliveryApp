@@ -1,5 +1,6 @@
 package com.example.deliveryapp.screen.home.restaurant.detail
 
+import android.app.AlertDialog
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.Context
 import android.content.Intent
@@ -138,6 +139,13 @@ class RestaurantDetailActivity : BaseActivity<RestaurantDetailViewModel, Activit
         if (::viewPagerAdapter.isInitialized.not()) {
             initViewPager(state.restaurantEntity.restaurantInfoId, state.restaurantEntity.restaurantTitle, state.restaurantFoodList)
         }
+
+        notifyBasketCount(state.foodMenuListInBasket)
+
+        val (isClearNeed, afterAction) = state.isClearNeedInBasketAndAction
+        if (isClearNeed) {
+            alertClearNeedInBasket(afterAction)
+        }
     }
 
     private fun initViewPager(restaurantInfoId: Long, restaurantTitle: String, restaurantFoodList: List<RestaurantFoodEntity>?) {
@@ -160,5 +168,34 @@ class RestaurantDetailActivity : BaseActivity<RestaurantDetailViewModel, Activit
         }.attach()
 
     }
+
+    private fun notifyBasketCount(foodMenuListInBasket: List<RestaurantFoodEntity>?) = with(binding) {
+        basketCountTextView.text = if (foodMenuListInBasket.isNullOrEmpty()) {
+            "0"
+        } else {
+            getString(R.string.basket_count, foodMenuListInBasket.size)
+        }
+
+        basketButton.setOnClickListener {
+            // TODO 주문하기 화면 이동 OR 로그인
+        }
+    }
+
+    private fun alertClearNeedInBasket(afterAction: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setTitle("장바구니에는 같은 가게의 메뉴만 담을 수 있습니다.")
+            .setMessage("선택하신 메뉴를 장바구니에 담을 경우 이전에 담은 메뉴가 삭제됩니다.")
+            .setPositiveButton("담기") { dialog, _ ->
+                viewModel.notifyClearBasket()
+                afterAction()
+                dialog.dismiss()
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
 
 }

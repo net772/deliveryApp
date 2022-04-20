@@ -72,6 +72,11 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         }
     override fun getViewBinding(): FragmentHomeBinding = FragmentHomeBinding.inflate(layoutInflater)
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.checkMyBasket()
+    }
+
     override fun initViews() = with(binding) {
         locationTitleTextView.setOnClickListener {
             viewModel.getMapSearchInfo()?.let { mapInfo ->
@@ -114,35 +119,51 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         }
     }
 
-    override fun observeData() = viewModel.homeStateLiveData.observe(viewLifecycleOwner) {
-        when(it) {
-            is HomeState.Uninitialized -> {
-                getMyLocation()
-            }
-            is HomeState.Loading -> {
-                binding.locationLoading.isVisible = true
-                binding.locationTitleTextView.text = getString(R.string.loading)
-            }
-            is HomeState.Success -> {
-                binding.locationLoading.isGone = true
-                binding.tabLayout.isVisible = true
-                binding.filterScrollView.isVisible = true
-                binding.viewPager.isVisible = true
-                binding.locationTitleTextView.text = it.mapSearchInfoEntity.fullAddress
-                initViewPager(it.mapSearchInfoEntity.locationLatLng)
-                if (it.isLocationSame.not()) {
-                    Toast.makeText(requireContext(), R.string.please_set_your_current_location, Toast.LENGTH_SHORT).show()
-                }
-            }
-            is HomeState.Error -> {
-                binding.locationLoading.isGone = true
-                binding.locationTitleTextView.setText(R.string.location_not_found)
-                binding.locationTitleTextView.setOnClickListener {
+    override fun observeData() {
+        viewModel.homeStateLiveData.observe(viewLifecycleOwner) {
+            when(it) {
+                is HomeState.Uninitialized -> {
                     getMyLocation()
                 }
-                Toast.makeText(requireContext(), it.messageId, Toast.LENGTH_SHORT).show()
+                is HomeState.Loading -> {
+                    binding.locationLoading.isVisible = true
+                    binding.locationTitleTextView.text = getString(R.string.loading)
+                }
+                is HomeState.Success -> {
+                    binding.locationLoading.isGone = true
+                    binding.tabLayout.isVisible = true
+                    binding.filterScrollView.isVisible = true
+                    binding.viewPager.isVisible = true
+                    binding.locationTitleTextView.text = it.mapSearchInfoEntity.fullAddress
+                    initViewPager(it.mapSearchInfoEntity.locationLatLng)
+                    if (it.isLocationSame.not()) {
+                        Toast.makeText(requireContext(), R.string.please_set_your_current_location, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is HomeState.Error -> {
+                    binding.locationLoading.isGone = true
+                    binding.locationTitleTextView.setText(R.string.location_not_found)
+                    binding.locationTitleTextView.setOnClickListener {
+                        getMyLocation()
+                    }
+                    Toast.makeText(requireContext(), it.messageId, Toast.LENGTH_SHORT).show()
+                }
+                else -> Unit
             }
-            else -> Unit
+        }
+
+        viewModel.foodMenuBasketLiveData.observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
+                binding.basketButtonContainer.isVisible = true
+                binding.basketCountTextView.text = getString(R.string.basket_count, it.size)
+                binding.basketButton.setOnClickListener {
+                    //TODO 나중에 장바구니 이후 동작 처리
+                }
+
+            } else {
+                binding.basketButtonContainer.isGone = true
+                binding.basketButton.setOnClickListener(null)
+            }
         }
     }
 

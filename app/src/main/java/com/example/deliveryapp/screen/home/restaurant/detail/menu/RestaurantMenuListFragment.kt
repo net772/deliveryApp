@@ -2,6 +2,7 @@ package com.example.deliveryapp.screen.home.restaurant.detail.menu
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.example.deliveryapp.data.entity.restaurant.RestaurantFoodEntity
 import com.example.deliveryapp.databinding.FragmentListBinding
 import com.example.deliveryapp.model.restaurant.FoodModel
@@ -29,7 +30,7 @@ class RestaurantMenuListFragment : BaseFragment<RestaurantMenuListViewModel, Fra
     private val adapter by lazy {
         ModelRecyclerAdapter<FoodModel, RestaurantMenuListViewModel>(listOf(), viewModel, adapterListener = object : FoodMenuListListener {
             override fun onClickItem(model: FoodModel) {
-                //viewModel.insertMenuInBasket(model)
+                viewModel.insertMenuInBasket(model)
             }
         })
     }
@@ -42,6 +43,17 @@ class RestaurantMenuListFragment : BaseFragment<RestaurantMenuListViewModel, Fra
     override fun observeData() {
         viewModel.restaurantMenuListLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
+        }
+
+        viewModel.menuBasketLiveData.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), "장바구니에 담겼습니다. 메뉴 : ${it.title}", Toast.LENGTH_SHORT).show()
+            restaurantDetailViewModel.notifyFoodMenuListInBasket(it)
+        }
+
+        viewModel.isClearNeedInBasketLiveData.observe(viewLifecycleOwner) { (isClearNeed, afterAction) ->
+            if (isClearNeed) {
+                restaurantDetailViewModel.notifyClearNeedAlertInBasket(isClearNeed, afterAction)
+            }
         }
     }
 

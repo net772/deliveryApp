@@ -32,7 +32,7 @@ import org.koin.dsl.module
 val appModule = module {
 
     viewModel { MainViewModel() }
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
     viewModel { MyViewModel() }
     viewModel { (restaurantCategory: RestaurantCategory, locationLatLngEntity: LocationLatLngEntity) -> RestaurantListViewModel(restaurantCategory, locationLatLngEntity, get()) }
     viewModel { (mapSearchInfoEntity: MapSearchInfoEntity) ->
@@ -40,13 +40,13 @@ val appModule = module {
     }
     viewModel { (restaurantEntity: RestaurantEntity) -> RestaurantDetailViewModel(restaurantEntity, get(), get()) }
     viewModel { (restaurantId: Long, restaurantFoodList: List<RestaurantFoodEntity>) ->
-        RestaurantMenuListViewModel(restaurantId, restaurantFoodList)
+        RestaurantMenuListViewModel(restaurantId, restaurantFoodList, get())
     }
 
     single<RestaurantRepository> { DefaultRestaurantRepository(get(), get(), get()) }
     single<MapRepository> { DefaultMapRepository(get(), get()) }
     single<UserRepository> { DefaultUserRepository(get(), get(), get()) }
-    single<RestaurantFoodRepository> { DefaultRestaurantFoodRepository(get(), get()) }
+    single<RestaurantFoodRepository> { DefaultRestaurantFoodRepository(get(), get(), get()) }
 
     // retrofit
     single { provideGsonConverterFactory() }
@@ -60,6 +60,7 @@ val appModule = module {
     single { provideDB(androidApplication()) }
     single { provideLocationDao(get()) }
     single { provideRestaurantDao(get()) }
+    single { provideFoodMenuBasketDao(get()) }
 
     single<ResourcesProvider> { DefaultResourceProvider(androidApplication()) }
 
