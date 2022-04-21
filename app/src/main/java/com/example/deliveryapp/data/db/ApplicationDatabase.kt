@@ -10,7 +10,7 @@ import com.example.deliveryapp.data.entity.restaurant.RestaurantEntity
 import com.example.deliveryapp.data.entity.restaurant.RestaurantFoodEntity
 
 @Database(
-    entities = [LocationLatLngEntity::class, RestaurantEntity::class, RestaurantFoodEntity::class,],
+    entities = [LocationLatLngEntity::class, RestaurantFoodEntity::class, RestaurantEntity::class],
     version = 1,
     exportSchema = false
 )

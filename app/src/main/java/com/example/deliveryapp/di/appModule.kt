@@ -10,6 +10,8 @@ import com.example.deliveryapp.data.repository.restaurant.DefaultRestaurantRepos
 import com.example.deliveryapp.data.repository.restaurant.RestaurantRepository
 import com.example.deliveryapp.data.repository.restaurant.food.DefaultRestaurantFoodRepository
 import com.example.deliveryapp.data.repository.restaurant.food.RestaurantFoodRepository
+import com.example.deliveryapp.data.repository.review.DefaultRestaurantReviewRepository
+import com.example.deliveryapp.data.repository.review.RestaurantReviewRepository
 import com.example.deliveryapp.data.repository.user.DefaultUserRepository
 import com.example.deliveryapp.data.repository.user.UserRepository
 import com.example.deliveryapp.screen.MainViewModel
@@ -18,6 +20,7 @@ import com.example.deliveryapp.screen.home.restaurant.RestaurantCategory
 import com.example.deliveryapp.screen.home.restaurant.RestaurantListViewModel
 import com.example.deliveryapp.screen.home.restaurant.detail.RestaurantDetailViewModel
 import com.example.deliveryapp.screen.home.restaurant.detail.menu.RestaurantMenuListViewModel
+import com.example.deliveryapp.screen.home.restaurant.detail.review.RestaurantReviewListViewModel
 import com.example.deliveryapp.screen.my.MyViewModel
 import com.example.deliveryapp.screen.mylocation.MyLocationViewModel
 import com.example.deliveryapp.util.event.MenuChangeEventBus
@@ -43,11 +46,13 @@ val appModule = module {
         RestaurantMenuListViewModel(restaurantId, restaurantFoodList, get())
     }
 
+    viewModel { (restaurantTitle: String) -> RestaurantReviewListViewModel(restaurantTitle, get()) }
+
     single<RestaurantRepository> { DefaultRestaurantRepository(get(), get(), get()) }
     single<MapRepository> { DefaultMapRepository(get(), get()) }
     single<UserRepository> { DefaultUserRepository(get(), get(), get()) }
     single<RestaurantFoodRepository> { DefaultRestaurantFoodRepository(get(), get(), get()) }
-
+    single<RestaurantReviewRepository> { DefaultRestaurantReviewRepository(get()) }
     // retrofit
     single { provideGsonConverterFactory() }
     single { buildOkHttpClient() }
