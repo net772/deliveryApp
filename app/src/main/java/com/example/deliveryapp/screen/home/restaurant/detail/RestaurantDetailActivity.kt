@@ -6,22 +6,30 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.example.deliveryapp.R
 import com.example.deliveryapp.data.entity.restaurant.RestaurantEntity
 import com.example.deliveryapp.data.entity.restaurant.RestaurantFoodEntity
 import com.example.deliveryapp.databinding.ActivityRestaurantDetailBinding
 import com.example.deliveryapp.extensions.fromDpToPx
 import com.example.deliveryapp.extensions.load
+import com.example.deliveryapp.screen.MainTabMenu
 import com.example.deliveryapp.screen.base.BaseActivity
 import com.example.deliveryapp.screen.home.restaurant.RestaurantListFragment
 import com.example.deliveryapp.screen.home.restaurant.detail.menu.RestaurantMenuListFragment
 import com.example.deliveryapp.screen.home.restaurant.detail.review.RestaurantReviewListFragment
+import com.example.deliveryapp.screen.order.OrderMenuListActivity
+import com.example.deliveryapp.util.event.MenuChangeEventBus
 import com.example.deliveryapp.widget.adapter.RestaurantDetailListFragmentPagerAdapter
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.abs
@@ -34,6 +42,8 @@ class RestaurantDetailActivity : BaseActivity<RestaurantDetailViewModel, Activit
         }
     }
 
+    private val firebaseAuth by lazy { FirebaseAuth.getInstance() }
+    private val menuChangeEventBus by inject<MenuChangeEventBus>()
     override val viewModel by viewModel<RestaurantDetailViewModel> {
         parametersOf(
             intent.getParcelableExtra<RestaurantEntity>(RestaurantListFragment.RESTAURANT_KEY)
@@ -177,8 +187,38 @@ class RestaurantDetailActivity : BaseActivity<RestaurantDetailViewModel, Activit
         }
 
         basketButton.setOnClickListener {
-            // TODO 주문하기 화면 이동 OR 로그인
+            if (firebaseAuth.currentUser == null) {
+                alertLoginNeed {
+                    lifecycleScope.launch {
+                        menuChangeEventBus.changeMenu(MainTabMenu.MY)
+                        finish()
+                    }
+                }
+            } else {
+                if (foodMenuListInBasket.isNullOrEmpty()) {
+                    Toast.makeText(this@RestaurantDetailActivity, "장바구니에 주문할 메뉴를 추가해주세요.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                startActivity(
+                    OrderMenuListActivity.newIntent(this@RestaurantDetailActivity)
+                )
+            }
         }
+    }
+
+    private fun alertLoginNeed(afterAction: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setTitle("로그인이 필요합니다.")
+            .setMessage("주문하려면 로그인이 필요합니다. My탭으로 이동하시겠습니까?")
+            .setPositiveButton("이동") { dialog, _ ->
+                afterAction()
+                dialog.dismiss()
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun alertClearNeedInBasket(afterAction: () -> Unit) {

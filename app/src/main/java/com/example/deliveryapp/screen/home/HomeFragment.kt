@@ -3,6 +3,7 @@ package com.example.deliveryapp.screen.home
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.location.Location
 import android.location.LocationListener
@@ -16,15 +17,19 @@ import com.example.deliveryapp.R
 import com.example.deliveryapp.data.entity.location.LocationLatLngEntity
 import com.example.deliveryapp.data.entity.location.MapSearchInfoEntity
 import com.example.deliveryapp.databinding.FragmentHomeBinding
+import com.example.deliveryapp.screen.MainActivity
+import com.example.deliveryapp.screen.MainTabMenu
 import com.example.deliveryapp.screen.base.BaseFragment
 import com.example.deliveryapp.screen.home.HomeViewModel.Companion.MY_LOCATION_KEY
 import com.example.deliveryapp.screen.home.restaurant.RestaurantCategory
 import com.example.deliveryapp.screen.home.restaurant.RestaurantListFragment
 import com.example.deliveryapp.screen.home.restaurant.RestautantFilterOrder
 import com.example.deliveryapp.screen.mylocation.MyLocationActivity
+import com.example.deliveryapp.screen.order.OrderMenuListActivity
 import com.example.deliveryapp.widget.adapter.RestaurantListFragmentPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
@@ -37,6 +42,8 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
     }
+
+    private val firebaseAuth by lazy { FirebaseAuth.getInstance()}
     private lateinit var viewPagerAdapter: RestaurantListFragmentPagerAdapter
 
     override val viewModel by viewModel<HomeViewModel>()
@@ -157,7 +164,15 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
                 binding.basketButtonContainer.isVisible = true
                 binding.basketCountTextView.text = getString(R.string.basket_count, it.size)
                 binding.basketButton.setOnClickListener {
-                    //TODO 나중에 장바구니 이후 동작 처리
+                    if (firebaseAuth.currentUser == null) {
+                        alertLoginNeed {
+                            (requireActivity() as MainActivity).goToTab(MainTabMenu.MY)
+                        }
+                    } else {
+                        startActivity(
+                            OrderMenuListActivity.newIntent(requireActivity())
+                        )
+                    }
                 }
 
             } else {
@@ -166,6 +181,23 @@ class HomeFragment: BaseFragment<HomeViewModel, FragmentHomeBinding>() {
             }
         }
     }
+
+    private fun alertLoginNeed(afterAction: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("로그인이 필요합니다.")
+            .setMessage("주문하려면 로그인이 필요합니다. My탭으로 이동하시겠습니까?")
+            .setPositiveButton("이동") { dialog, _ ->
+                afterAction()
+                dialog.dismiss()
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+
 
     private fun initViewPager(locationLatLng: LocationLatLngEntity) = with(binding) {
         val restaurantCategories = RestaurantCategory.values()

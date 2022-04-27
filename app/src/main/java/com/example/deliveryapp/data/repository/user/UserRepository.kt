@@ -14,4 +14,6 @@ interface UserRepository {
     suspend fun deleteUserLikedRestaurant(restaurantTitle: String)
 
     suspend fun insertUserLikedRestaurant(restaurantEntity: RestaurantEntity)
+
+    suspend fun getAllUserLikedRestaurant(): List<RestaurantEntity>
 }

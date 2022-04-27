@@ -10,6 +10,7 @@ import com.example.deliveryapp.R
 import com.example.deliveryapp.databinding.ActivityMainBinding
 import com.example.deliveryapp.screen.base.BaseActivity
 import com.example.deliveryapp.screen.home.HomeFragment
+import com.example.deliveryapp.screen.like.RestaurantLikeListFragment
 import com.example.deliveryapp.screen.my.MyFragment
 import com.example.deliveryapp.util.event.MenuChangeEventBus
 import com.google.android.material.navigation.NavigationBarView
@@ -52,6 +53,10 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(), Navigat
         return when(item.itemId) {
             R.id.menu_home -> {
                 showFragment(HomeFragment.newInstance(), HomeFragment.TAG)
+                true
+            }
+            R.id.menu_like -> {
+                showFragment(RestaurantLikeListFragment.newInstance(), RestaurantLikeListFragment.TAG)
                 true
             }
             R.id.menu_my -> {
