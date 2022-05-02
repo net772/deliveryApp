@@ -31,6 +31,10 @@ import com.example.deliveryapp.screen.order.OrderMenuListViewModel
 import com.example.deliveryapp.util.event.MenuChangeEventBus
 import com.example.deliveryapp.util.provider.DefaultResourceProvider
 import com.example.deliveryapp.util.provider.ResourcesProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -43,7 +47,7 @@ val appModule = module {
     viewModel { MainViewModel() }
     viewModel { HomeViewModel(get(), get(), get()) }
     viewModel { RestaurantLikeListViewModel(get()) }
-    viewModel { MyViewModel(get()) }
+    viewModel { MyViewModel(get(), get(), get()) }
     viewModel { (restaurantCategory: RestaurantCategory, locationLatLngEntity: LocationLatLngEntity) -> RestaurantListViewModel(restaurantCategory, locationLatLngEntity, get()) }
     viewModel { (mapSearchInfoEntity: MapSearchInfoEntity) ->
         MyLocationViewModel(mapSearchInfoEntity, get(), get())
@@ -83,4 +87,8 @@ val appModule = module {
 
     single { Dispatchers.IO }
     single { Dispatchers.Main }
+
+    single { Firebase.firestore }
+    single { Firebase.storage }
+    single { FirebaseAuth.getInstance() }
 }

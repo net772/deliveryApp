@@ -13,6 +13,7 @@ import com.example.deliveryapp.widget.adapter.viewholder.restaurant.RestaurantVi
 import com.example.deliveryapp.widget.adapter.viewholder.ModelViewHolder
 import com.example.deliveryapp.widget.adapter.viewholder.food.FoodMenuViewHolder
 import com.example.deliveryapp.widget.adapter.viewholder.order.OrderMenuViewHolder
+import com.example.deliveryapp.widget.adapter.viewholder.order.OrderViewHolder
 import com.example.deliveryapp.widget.adapter.viewholder.restaurant.LikeRestaurantViewHolder
 import com.example.deliveryapp.widget.adapter.viewholder.review.RestaurantReviewViewHolder
 
@@ -61,6 +62,14 @@ object ModelViewHolderMapper {
                     viewModel,
                     resourcesProvider
                 )
+
+            CellType.ORDER_CELL -> {
+                OrderViewHolder(
+                    ViewholderOrderBinding.inflate(inflater, parent, false),
+                    viewModel,
+                    resourcesProvider
+                )
+            }
 
             else -> Unit
         }

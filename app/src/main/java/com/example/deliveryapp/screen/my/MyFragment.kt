@@ -10,8 +10,11 @@ import com.example.deliveryapp.R
 import com.example.deliveryapp.databinding.FragmentHomeBinding
 import com.example.deliveryapp.databinding.FragmentMyBinding
 import com.example.deliveryapp.extensions.load
+import com.example.deliveryapp.model.order.OrderModel
 import com.example.deliveryapp.screen.base.BaseFragment
 import com.example.deliveryapp.screen.home.HomeFragment
+import com.example.deliveryapp.widget.adapter.ModelRecyclerAdapter
+import com.example.deliveryapp.widget.adapter.listener.order.OrderListListener
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -39,7 +42,6 @@ class MyFragment: BaseFragment<MyViewModel, FragmentMyBinding>() {
 
     private val firebaseAuth by lazy { FirebaseAuth.getInstance() }
 
-
     private val loginLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
@@ -51,7 +53,20 @@ class MyFragment: BaseFragment<MyViewModel, FragmentMyBinding>() {
                 e.printStackTrace()
 
             }
+        } else {
+            Log.d("동현","fail")
         }
+    }
+
+    private val adapter by lazy {
+        ModelRecyclerAdapter<OrderModel, MyViewModel>(listOf(), viewModel, adapterListener = object : OrderListListener {
+            override fun writeRestaurantReview(orderId: String, restaurantTitle: String) {
+                Log.d("동현","AddRestaurantReviewActivity - orderId : $orderId, restaurantTitle : $restaurantTitle")
+//                startActivity(
+//                    AddRestaurantReviewActivity.newIntent(requireContext(), orderId, restaurantTitle)
+//                )
+            }
+        })
     }
 
     override fun getViewBinding(): FragmentMyBinding = FragmentMyBinding.inflate(layoutInflater)
@@ -67,7 +82,7 @@ class MyFragment: BaseFragment<MyViewModel, FragmentMyBinding>() {
     }
 
     override fun initViews() = with(binding) {
-       // recyclerView.adapter = adapter
+        recyclerView.adapter = adapter
         loginButton.setOnClickListener {
             signInGoogle()
         }
@@ -124,14 +139,15 @@ class MyFragment: BaseFragment<MyViewModel, FragmentMyBinding>() {
         profileImageView.load(state.profileImageUri.toString(), 60f)
         userNameTextView.text = state.userName
 
-//        if (state.orderList.isEmpty()) {
-//            emptyResultTextView.isGone = false
-//            recyclerView.isGone = true
-//        } else {
-//            emptyResultTextView.isGone = true
-//            recyclerView.isGone = false
-//            adapter.submitList(state.orderList)
-//        }
+        Log.d("동현","123312 : ${state.orderList.toString()}")
+        if (state.orderList.isEmpty()) {
+            emptyResultTextView.isGone = false
+            recyclerView.isGone = true
+        } else {
+            emptyResultTextView.isGone = true
+            recyclerView.isGone = false
+            adapter.submitList(state.orderList)
+        }
     }
 
     private fun signInGoogle() {
