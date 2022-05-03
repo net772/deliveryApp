@@ -45,6 +45,7 @@ class MyViewModel(
     @Suppress("UNCHECKED_CAST")
     fun setUserInfo(firebaseUser: FirebaseUser?) = viewModelScope.launch {
         firebaseUser?.let { user ->
+            Log.d("동현", "user :$user")
             when (val orderMenusResult = orderRepository.getAllOrderMenus(user.uid)) {
                 is DefaultOrderRepository.Result.Success<*> -> {
                     val orderList: List<OrderEntity> = orderMenusResult.data as List<OrderEntity>

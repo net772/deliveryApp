@@ -1,5 +1,6 @@
 package com.example.deliveryapp.data.repository.order
 
+import android.util.Log
 import com.example.deliveryapp.data.entity.order.OrderEntity
 import com.example.deliveryapp.data.entity.restaurant.RestaurantFoodEntity
 import com.google.firebase.firestore.FirebaseFirestore
