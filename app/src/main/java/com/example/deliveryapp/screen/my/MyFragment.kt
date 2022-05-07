@@ -7,12 +7,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.example.deliveryapp.R
-import com.example.deliveryapp.databinding.FragmentHomeBinding
 import com.example.deliveryapp.databinding.FragmentMyBinding
 import com.example.deliveryapp.extensions.load
 import com.example.deliveryapp.model.order.OrderModel
 import com.example.deliveryapp.screen.base.BaseFragment
-import com.example.deliveryapp.screen.home.HomeFragment
+import com.example.deliveryapp.screen.review.AddRestaurantReviewActivity
 import com.example.deliveryapp.widget.adapter.ModelRecyclerAdapter
 import com.example.deliveryapp.widget.adapter.listener.order.OrderListListener
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -61,10 +60,9 @@ class MyFragment: BaseFragment<MyViewModel, FragmentMyBinding>() {
     private val adapter by lazy {
         ModelRecyclerAdapter<OrderModel, MyViewModel>(listOf(), viewModel, adapterListener = object : OrderListListener {
             override fun writeRestaurantReview(orderId: String, restaurantTitle: String) {
-                Log.d("동현","AddRestaurantReviewActivity - orderId : $orderId, restaurantTitle : $restaurantTitle")
-//                startActivity(
-//                    AddRestaurantReviewActivity.newIntent(requireContext(), orderId, restaurantTitle)
-//                )
+                startActivity(
+                    AddRestaurantReviewActivity.newIntent(requireContext(), orderId, restaurantTitle)
+                )
             }
         })
     }
@@ -103,11 +101,9 @@ class MyFragment: BaseFragment<MyViewModel, FragmentMyBinding>() {
         firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                    Log.d("동현","123")
                     val user = firebaseAuth.currentUser
                     viewModel.setUserInfo(user)
                 } else {
-                    Log.d("동현","else")
                     firebaseAuth.signOut()
                     viewModel.setUserInfo(null)
                 }
@@ -139,7 +135,6 @@ class MyFragment: BaseFragment<MyViewModel, FragmentMyBinding>() {
         profileImageView.load(state.profileImageUri.toString(), 60f)
         userNameTextView.text = state.userName
 
-        Log.d("동현","123312 : ${state.orderList.toString()}")
         if (state.orderList.isEmpty()) {
             emptyResultTextView.isGone = false
             recyclerView.isGone = true

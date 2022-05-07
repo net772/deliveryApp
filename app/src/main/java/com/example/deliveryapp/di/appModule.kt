@@ -28,6 +28,8 @@ import com.example.deliveryapp.screen.like.RestaurantLikeListViewModel
 import com.example.deliveryapp.screen.my.MyViewModel
 import com.example.deliveryapp.screen.mylocation.MyLocationViewModel
 import com.example.deliveryapp.screen.order.OrderMenuListViewModel
+import com.example.deliveryapp.screen.review.gallery.GalleryPhotoRepository
+import com.example.deliveryapp.screen.review.gallery.GalleryViewModel
 import com.example.deliveryapp.util.event.MenuChangeEventBus
 import com.example.deliveryapp.util.provider.DefaultResourceProvider
 import com.example.deliveryapp.util.provider.ResourcesProvider
@@ -59,13 +61,15 @@ val appModule = module {
 
     viewModel { (restaurantTitle: String) -> RestaurantReviewListViewModel(restaurantTitle, get()) }
     viewModel { OrderMenuListViewModel(get(), get(), get()) }
+    viewModel { GalleryViewModel(get()) }
 
     single<RestaurantRepository> { DefaultRestaurantRepository(get(), get(), get()) }
     single<MapRepository> { DefaultMapRepository(get(), get()) }
     single<UserRepository> { DefaultUserRepository(get(), get(), get()) }
     single<RestaurantFoodRepository> { DefaultRestaurantFoodRepository(get(), get(), get()) }
-    single<RestaurantReviewRepository> { DefaultRestaurantReviewRepository(get()) }
+    single<RestaurantReviewRepository> { DefaultRestaurantReviewRepository(get(), get()) }
     single<OrderRepository> { DefaultOrderRepository(get(), get()) }
+    single { GalleryPhotoRepository(androidApplication()) }
 
     // retrofit
     single { provideGsonConverterFactory() }

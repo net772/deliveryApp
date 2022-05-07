@@ -5,7 +5,6 @@ import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
@@ -117,12 +116,16 @@ class RestaurantDetailActivity : BaseActivity<RestaurantDetailViewModel, Activit
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.checkMyBasket()
+    }
+
     private fun handleLoading() = with(binding) {
         progressBar.isVisible = true
     }
 
     private fun handleSuccess(state: RestaurantDetailState.Success) = with(binding) {
-        Log.d("동현", "restaurantFoodList : ${state.restaurantFoodList}")
         progressBar.isGone = true
         val restaurantEntity = state.restaurantEntity
         callButton.isGone = restaurantEntity.restaurantTelNumber == null
@@ -159,7 +162,6 @@ class RestaurantDetailActivity : BaseActivity<RestaurantDetailViewModel, Activit
     }
 
     private fun initViewPager(restaurantInfoId: Long, restaurantTitle: String, restaurantFoodList: List<RestaurantFoodEntity>?) {
-        Log.d("동현","restaurantFoodList : $restaurantFoodList")
         viewPagerAdapter = RestaurantDetailListFragmentPagerAdapter(
             this,
             listOf(

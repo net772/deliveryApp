@@ -1,7 +1,6 @@
 package com.example.deliveryapp.screen.home.restaurant.detail.menu
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import com.example.deliveryapp.data.entity.restaurant.RestaurantFoodEntity
 import com.example.deliveryapp.databinding.FragmentListBinding
@@ -36,7 +35,6 @@ class RestaurantMenuListFragment : BaseFragment<RestaurantMenuListViewModel, Fra
     }
 
     override fun initViews() = with(binding) {
-        Log.d("동현"," : $restaurantFoodList")
         recyclerVIew.adapter = adapter
     }
 

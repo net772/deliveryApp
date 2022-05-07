@@ -29,7 +29,5 @@ class ImageViewPagerAdapter(
         fun bindData(uri: Uri) = with(binding) {
             imageView.load(uri.toString())
         }
-
     }
-
 }

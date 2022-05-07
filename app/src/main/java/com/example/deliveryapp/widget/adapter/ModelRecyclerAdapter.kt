@@ -1,6 +1,5 @@
 package com.example.deliveryapp.widget.adapter
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.example.deliveryapp.model.CellType
@@ -26,7 +25,6 @@ class ModelRecyclerAdapter<M : Model, VM: BaseViewModel>(
     override fun getItemViewType(position: Int): Int = modelList[position].type.ordinal
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModelViewHolder<M> {
-        Log.d("동현","onCreateViewHolder - viewType : $viewType")
         return ModelViewHolderMapper.map(parent, CellType.values()[viewType], viewModel, resourcesProvider)
     }
 

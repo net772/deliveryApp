@@ -12,9 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.example.deliveryapp.screen.review.camera.CameraActivity
 import com.example.deliveryapp.data.entity.review.ReviewEntity
 import com.example.deliveryapp.databinding.ActivityAddRestaurantReviewBinding
+import com.example.deliveryapp.screen.review.camera.CameraActivity
 import com.example.deliveryapp.screen.review.gallery.GalleryActivity
 import com.example.deliveryapp.widget.adapter.PhotoListAdapter
 import com.google.firebase.auth.FirebaseAuth

@@ -1,6 +1,5 @@
 package com.example.deliveryapp.screen.my
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.deliveryapp.R
@@ -28,7 +27,6 @@ class MyViewModel(
     override fun fetchData(): Job = viewModelScope.launch {
         myStateLiveData.value = MyState.Loading
         appPreferenceManager.getIdToken()?.let {
-            Log.d("동현","it : $it")
             myStateLiveData.value = MyState.Login(it)
         } ?: kotlin.run {
             myStateLiveData.value = MyState.Success.NotRegistered
@@ -45,11 +43,9 @@ class MyViewModel(
     @Suppress("UNCHECKED_CAST")
     fun setUserInfo(firebaseUser: FirebaseUser?) = viewModelScope.launch {
         firebaseUser?.let { user ->
-            Log.d("동현", "user :$user")
             when (val orderMenusResult = orderRepository.getAllOrderMenus(user.uid)) {
                 is DefaultOrderRepository.Result.Success<*> -> {
                     val orderList: List<OrderEntity> = orderMenusResult.data as List<OrderEntity>
-                    Log.d("동현", orderMenusResult.data.toString())
                     myStateLiveData.value = MyState.Success.Registered(
                         user.displayName ?: "익명",
                         user.photoUrl,
